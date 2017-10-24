@@ -1,0 +1,124 @@
+<!doctype html>
+<html xmlns:v-on="http://www.w3.org/1999/xhtml" xmlns:v-bind="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8">
+
+  <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+  <link href="https://cdn.bootcss.com/materialize/0.100.1/css/materialize.min.css" rel="stylesheet">
+  <script src="https://cdn.bootcss.com/materialize/0.100.1/js/materialize.min.js"></script>
+  <script src="https://cdn.bootcss.com/vue/2.4.2/vue.min.js"></script>
+  <link href="https://cdn.bootcss.com/xterm/2.9.2/xterm.min.css" rel="stylesheet">
+  <script src="https://cdn.bootcss.com/xterm/2.9.2/xterm.min.js"></script>
+  <script src="https://cdn.bootcss.com/xterm/2.9.2/addons/fit/fit.min.js"></script>
+  <style>
+    a{
+      cursor: pointer;
+    }
+    .t{
+      height: 480px;
+    }
+    #z{
+      height: 20px;
+    }
+  </style>
+</head>
+<body onresize="sshMain.resize()">
+<nav class="black">
+  <div class="nav-wrapper">
+    <a href="#" class="brand-logo">WSSH</a>
+    <ul id="nav-mobile" class="right hide-on-med-and-down">
+      <li><a class="modal-trigger" href="#sshList">SSH</a></li>
+      <li><a>Sftp</a></li>
+      <li><a>Tunnel</a></li>
+    </ul>
+  </div>
+</nav>
+<br>
+<div class="container" id="sshMain">
+  <div class="row">
+    <div class="col m12" id="z"></div>
+    <div class="col m12">
+      <ul class="pagination">
+        <li v-for="(s,i) in sList" v-bind:class="{active:i==showIndex}">
+          <a v-on:click="select(i)">{{s.Title}}</a>
+        </li>
+      </ul>
+    </div>
+    <div class="col m12 t" v-for="(s,i) in sList" v-show="i==showIndex" v-bind:id="'t'+s.ID">
+    </div>
+  </div>
+</div>
+</body>
+
+<div id="sshList" class="modal">
+  <div class="modal-content">
+    <h4>SSH</h4>
+    <table class="table highlight">
+      <thead>
+        <th>主机</th>
+        <th>用户名</th>
+        <th>备注</th>
+        <th>操作</th>
+      </thead>
+      <tbody>
+        <tr v-for="s in sList">
+          <td><a v-on:click="open(s)">{{s.Host}}</a></td>
+          <td>{{s.User}}</td>
+          <td>{{s.Title}}</td>
+          <td><a v-on:click="edit(s)">编辑</a></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="modal-footer">
+    <button class="btn" v-on:click="create">新建</button>
+  </div>
+</div>
+
+
+<div id="sshNew" class="modal">
+  <div class="modal-content">
+    <h4>{{ssh.ID==""?"新建SSH":"编辑SSH-"+ssh.ID}}</h4>
+    <div class="row">
+      <div class="col m10 offset-m1">
+        <div class="col m12 input-field">
+          <input id="host" type="text" class="validate" required v-model="ssh.Host">
+          <label for="host" class="active" data-error="不能为空">主机*</label>
+        </div>
+        <div class="col m12 input-field">
+          <input id="title" type="text" class="validate" v-model="ssh.Title">
+          <label for="title">备注</label>
+        </div>
+        <div class="col m12 input-field">
+          <input id="user" type="text" class="validate" required v-model="ssh.User">
+          <label for="user" data-error="不能为空">用户名*</label>
+        </div>
+        <div class="col m2 input-field">
+          <select id="authType" onchange="sshNew.authChange(this)">
+            <option value="key">密钥</option>
+            <option value="pwd">密码</option>
+          </select>
+          <label>验证</label>
+        </div>
+        <div class="col m10 input-field" v-if="ssh.AuthType=='key'">
+          <input id="key" type="text" class="validate" required v-model="ssh.Key">
+          <label for="key" data-error="不能为空" >密钥路径</label>
+        </div>
+        <div class="col m10 input-field" v-if="ssh.AuthType=='pwd'">
+          <input id="password" type="password" required class="validate" v-model="ssh.Pwd">
+          <label for="password" data-error="不能为空">密码</label>
+        </div>
+        <div class="col m12 right-align">
+          <template v-if="ssh.ID!=0">
+            <button class="btn red" v-on:click="del">删除</button>
+            <button class="btn" v-on:click="copy">复制</button>
+          </template>
+          <button class="btn" v-bind:disabled="!verify" v-on:click="ok">{{ssh.ID==0?"创建":"保存"}}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="index.js"></script>
+</html>
